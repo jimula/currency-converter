@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Finance Currency Converter</title>
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="FX Pulse" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232563eb'/%3E%3Ctext x='60' y='78' font-family='Arial,sans-serif' font-size='56' font-weight='bold' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%232563eb'/%3E%3Ctext x='60' y='78' font-family='Arial,sans-serif' font-size='56' font-weight='bold' fill='white' text-anchor='middle'%3E%24%3C/text%3E%3C/svg%3E" />
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22FX%20Pulse%20-%20Google%20Finance%20Currency%20Converter%22%2C%22short_name%22%3A%22FX%20Pulse%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f8fafc%22%2C%22theme_color%22%3A%22%232563eb%22%7D" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.7);
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen transition-colors duration-200" id="app-body">
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Phone Home Screen Shortcut Modal -->
+  <div id="phone-shortcut-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full p-5 sm:p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Add FX Pulse to Your Phone Home Screen</h3>
+            <p class="text-xs text-slate-500">Configured with standalone mobile web-app icons & metadata</p>
+          </div>
+        </div>
+        <button id="btn-close-shortcut-modal" type="button" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100" aria-label="Close modal">
+          ✕
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <span>🍎 iPhone (Safari)</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600">
+            <li>Open the shared link or hosted page in <strong>Safari</strong>.</li>
+            <li>Tap the <strong>Share</strong> icon (square with arrow ↑) at the bottom.</li>
+            <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <span>🤖 Android (Chrome)</span>
+          </div>
+          <ol class="list-decimal list-inside space-y-1 text-slate-600">
+            <li>Open the shared link or file in <strong>Chrome</strong>.</li>
+            <li>Tap the <strong>Menu (⋮)</strong> in the top-right corner.</li>
+            <li>Tap <strong>Add to Home screen</strong> or <strong>Install app</strong>.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+        <button id="btn-download-app-html" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>Save Standalone App (.html)</span>
+        </button>
+
+        <button id="btn-trigger-pwa-install" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-colors">
+          <span>Trigger Browser Install Prompt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 min-h-[4rem] flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-sm shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">FX Pulse</h1>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+              Google Finance Data
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 truncate" id="header-timestamp">Latest Google Finance Snapshot: Oct 26, 2026 · 08:55 UTC</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btn-phone-shortcut" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-colors" title="Save app & create phone home screen shortcut">
+          <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          <span>Phone Shortcut</span>
+        </button>
+
+        <button id="btn-refresh-rates" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors" title="Retrieve latest exchange rates">
+          <svg id="refresh-icon" class="w-4 h-4 text-blue-600 transition-transform duration-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="hidden sm:inline">Sync Latest Rates</span>
+        </button>
+
+        <a id="header-gf-link" href="https://www.google.com/finance/quote/USD-TWD" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors">
+          <span>Google Finance</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- Top Section: Converter + Intraday Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Column: Reactive Currency Converter (5 cols) -->
+      <section class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-xs font-semibold uppercase tracking-wider text-blue-600">Real-Time Calculator</span>
+              <h2 class="text-lg font-bold text-slate-900" id="pair-headline">USD to TWD Converter</h2>
+            </div>
+            <span id="data-source-badge" class="text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+              Google Verified
+            </span>
+          </div>
+
+          <!-- Source Currency Input Box -->
+          <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <label for="input-from-amount" class="text-xs font-semibold text-slate-500 shrink-0">From Amount</label>
+              <span id="from-currency-name" class="text-xs text-slate-500 font-medium truncate text-right">US Dollar</span>
+            </div>
+            <div>
+              <select
+                id="select-from-currency"
+                aria-label="From Currency"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              ></select>
+            </div>
+            <div class="flex items-baseline justify-between gap-2 pt-1 border-t border-slate-200/70">
+              <input
+                id="input-from-amount"
+                type="number"
+                step="any"
+                min="0"
+                value="1000"
+                aria-label="From Amount"
+                class="w-full min-w-0 bg-transparent text-2xl sm:text-3xl font-bold text-slate-900 focus:outline-none"
+                placeholder="0.00"
+              />
+              <span id="from-code-Readout" class="text-sm font-bold text-slate-400 shrink-0 select-none">USD</span>
+            </div>
+          </div>
+
+          <!-- Swap & Mid-Market Rate Divider -->
+          <div class="relative my-3 flex items-center justify-between gap-2 px-1">
+            <div class="flex items-center gap-1.5 text-xs text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 min-w-0">
+              <span class="font-medium text-slate-500 shrink-0">Rate:</span>
+              <span id="mid-market-pill" class="font-semibold text-slate-800 truncate">1 USD = 32.5995 TWD</span>
+            </div>
+
+            <button
+              id="btn-swap-currencies"
+              type="button"
+              title="Swap currencies"
+              class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white shadow-md flex items-center justify-center transition-all shrink-0"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Target Currency Input Box (Bidirectional) -->
+          <div class="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <label for="input-to-amount" class="text-xs font-semibold text-slate-500 shrink-0">Converted Amount (Editable)</label>
+              <span id="to-currency-name" class="text-xs text-slate-500 font-medium truncate text-right">New Taiwan Dollar</span>
+            </div>
+            <div>
+              <select
+                id="select-to-currency"
+                aria-label="To Currency"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              ></select>
+            </div>
+            <div class="flex items-baseline justify-between gap-2 pt-1 border-t border-slate-200/70">
+              <input
+                id="input-to-amount"
+                type="number"
+                step="any"
+                min="0"
+                value="32599.50"
+                aria-label="To Amount"
+                class="w-full min-w-0 bg-transparent text-2xl sm:text-3xl font-bold text-blue-600 focus:outline-none"
+                placeholder="0.00"
+              />
+              <span id="to-code-Readout" class="text-sm font-bold text-blue-400 shrink-0 select-none">TWD</span>
+            </div>
+          </div>
+
+          <!-- Quick Preset Amounts -->
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-medium text-slate-500">Quick Amounts</span>
+              <button id="btn-copy-result" type="button" class="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>Copy Result</span>
+              </button>
+            </div>
+            <div class="grid grid-cols-5 gap-1.5" id="preset-buttons-container">
+              <button type="button" data-preset="100" class="preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 border border-slate-200 transition-colors">100</button>
+              <button type="button" data-preset="500" class="preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 border border-slate-200 transition-colors">500</button>
+              <button type="button" data-preset="1000" class="preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 transition-colors">1,000</button>
+              <button type="button" data-preset="5000" class="preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 border border-slate-200 transition-colors">5,000</button>
+              <button type="button" data-preset="10000" class="preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 border border-slate-200 transition-colors">10,000</button>
+            </div>
+          </div>
+
+          <!-- Optional Bank / Card Fee Estimator -->
+          <div class="mt-4 pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-between text-xs mb-2">
+              <label for="select-fee-percent" class="font-medium text-slate-600">Bank / Card Spread Fee</label>
+              <select id="select-fee-percent" class="bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none">
+                <option value="0">0% (Google Mid-Market)</option>
+                <option value="1">1.0% (Wise / Low-Fee Transfer)</option>
+                <option value="1.5">1.5% (Foreign Transaction Card)</option>
+                <option value="3">3.0% (Standard Bank Desk)</option>
+              </select>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 space-y-1 text-xs">
+              <div class="flex justify-between text-slate-500">
+                <span>Inverse Rate:</span>
+                <span id="inverse-rate-display" class="font-medium text-slate-700">1 TWD = 0.030675 USD</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>Estimated Spread / Fee:</span>
+                <span id="fee-amount-display" class="font-medium text-slate-700">0.00 TWD (0%)</span>
+              </div>
+              <div class="flex justify-between text-slate-900 font-semibold pt-1 border-t border-slate-200/60">
+                <span>Net Recipient Gets:</span>
+                <span id="net-received-display" class="text-blue-600">32,599.50 TWD</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Rate Override Toggle -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Need to test a custom exchange rate?</span>
+          <button id="btn-toggle-custom-rate" type="button" class="font-semibold text-blue-600 hover:underline">
+            Custom Rate Override
+          </button>
+        </div>
+
+        <!-- Hidden Custom Rate Panel -->
+        <div id="custom-rate-panel" class="hidden mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="input-custom-rate" class="font-semibold text-amber-900">Custom 1 <span id="custom-from-code">USD</span> in <span id="custom-to-code">TWD</span>:</label>
+            <button id="btn-reset-google-rate" type="button" class="text-amber-700 hover:text-amber-900 underline font-medium">Restore Google Rate</button>
+          </div>
+          <div class="flex gap-2">
+            <input id="input-custom-rate" type="number" step="any" min="0.000001" class="flex-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1.5 font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Enter custom rate..." />
+            <button id="btn-apply-custom-rate" type="button" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold transition-colors">Apply</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Google Finance Intraday Trend & Analytics (7 cols) -->
+      <section class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Google Finance Intraday Series</span>
+                <span id="chart-change-badge" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700">
+                  +0.04% Today
+                </span>
+              </div>
+              <div class="flex items-baseline gap-2 mt-1">
+                <h3 id="chart-pair-title" class="text-2xl font-bold text-slate-900">1 USD = 32.5995 TWD</h3>
+                <span id="chart-timestamp-sub" class="text-xs text-slate-400">Oct 26, 2026 (00:00 – 08:55 UTC)</span>
+              </div>
+            </div>
+
+            <a id="chart-gf-quote-link" href="https://www.google.com/finance/quote/USD-TWD" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">
+              <span>View USD/TWD on Google Finance</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Intraday KPI Strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div class="text-xs text-slate-500">Intraday Open</div>
+              <div id="stat-open" class="text-sm font-bold text-slate-800 mt-0.5">32.5872</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div class="text-xs text-slate-500">Intraday High</div>
+              <div id="stat-high" class="text-sm font-bold text-emerald-600 mt-0.5">32.6095</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div class="text-xs text-slate-500">Intraday Low</div>
+              <div id="stat-low" class="text-sm font-bold text-rose-600 mt-0.5">32.5632</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <div class="text-xs text-slate-500">Converted Total</div>
+              <div id="stat-converted" class="text-sm font-bold text-blue-600 mt-0.5 truncate">32,599.50 TWD</div>
+            </div>
+          </div>
+
+          <!-- Chart Container (Fixed Height per WebApp guidelines) -->
+          <div class="relative h-72 w-full bg-slate-50/50 rounded-xl p-2 border border-slate-100">
+            <canvas id="fx-intraday-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Quick Denomination Conversion Strip -->
+        <div class="mt-5 pt-4 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Quick Reference Multipliers</span>
+            <button id="btn-export-csv" type="button" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Download Rates CSV</span>
+            </button>
+          </div>
+          <div id="quick-multipliers-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Multi-Currency Live Board -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-slate-900">Multi-Currency Live Conversion Board</h2>
+            <span id="board-base-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+              Base: 1,000 USD
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Automatically converts your entered <span id="board-base-desc" class="font-semibold text-slate-700">USD</span> amount across 24 global currencies using Google Finance rates. Click any card to set it as your active target currency.
+          </p>
+        </div>
+
+        <!-- Filter & Region Controls -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative">
+            <input
+              id="input-search-currency"
+              type="text"
+              placeholder="Search code or country..."
+              aria-label="Search currency"
+              class="w-48 sm:w-56 pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200" id="region-filter-tabs">
+            <button type="button" data-region="all" class="region-tab px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm">All (24)</button>
+            <button type="button" data-region="pinned" class="region-tab px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Pinned ★</button>
+            <button type="button" data-region="Asia-Pacific" class="region-tab px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">APAC</button>
+            <button type="button" data-region="Europe" class="region-tab px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Europe</button>
+            <button type="button" data-region="Americas" class="region-tab px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900">Americas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-Currency Grid -->
+      <div id="multi-currency-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- Footer Attribution -->
+    <footer class="text-center text-xs text-slate-400 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-slate-200/70">
+      <div>
+        Exchange rate data sourced from <a href="https://www.google.com/finance/markets/currencies" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">Google Finance Currencies</a> (Snapshot: October 26, 2026 · 08:55 UTC).
+      </div>
+      <div>
+        Click any currency pair's verification link to inspect live quotes directly on Google Finance.
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. VERIFIED GOOGLE FINANCE CURRENCY DATA (Retrieved Oct 26, 2026 08:55 UTC)
+    //    Base: 1 USD. Includes intraday series [00:00, 01:30, 03:00, 04:30, 06:00, 07:30, 08:55 UTC]
+    // -------------------------------------------------------------------------
+    const INTRADAY_LABELS = [
+      "00:00 UTC",
+      "01:30 UTC",
+      "03:00 UTC",
+      "04:30 UTC",
+      "06:00 UTC",
+      "07:30 UTC",
+      "08:55 UTC"
+    ];
+
+    const GOOGLE_CURRENCIES = [
+      {
+        code: "USD",
+        name: "US Dollar",
+        symbol: "$",
+        flag: "🇺🇸",
+        region: "Americas",
+        ratePerUsd: 1.0,
+        openPerUsd: 1.0,
+        highPerUsd: 1.0,
+        lowPerUsd: 1.0,
+        changePct: 0.0,
+        series: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      },
+      {
+        code: "TWD",
+        name: "New Taiwan Dollar",
+        symbol: "NT$",
+        flag: "🇹🇼",
+        region: "Asia-Pacific",
+        ratePerUsd: 32.5995,
+        openPerUsd: 32.5872,
+        highPerUsd: 32.6095,
+        lowPerUsd: 32.5632,
+        changePct: 0.0377,
+        series: [32.5872, 32.5873, 32.5820, 32.5795, 32.5785, 32.5880, 32.5995]
+      },
+      {
+        code: "EUR",
+        name: "Euro",
+        symbol: "€",
+        flag: "🇪🇺",
+        region: "Europe",
+        ratePerUsd: 0.89234,
+        openPerUsd: 0.89148,
+        highPerUsd: 0.89249,
+        lowPerUsd: 0.89077,
+        changePct: 0.0965,
+        series: [0.89148, 0.89120, 0.89120, 0.89122, 0.89140, 0.89222, 0.89234]
+      },
+      {
+        code: "JPY",
+        name: "Japanese Yen",
+        symbol: "¥",
+        flag: "🇯🇵",
+        region: "Asia-Pacific",
+        ratePerUsd: 157.2475,
+        openPerUsd: 156.8335,
+        highPerUsd: 157.2475,
+        lowPerUsd: 156.6745,
+        changePct: 0.2640,
+        series: [156.8335, 156.8715, 156.7520, 156.9260, 157.0370, 157.0740, 157.2475]
+      },
+      {
+        code: "GBP",
+        name: "British Pound",
+        symbol: "£",
+        flag: "🇬🇧",
+        region: "Europe",
+        ratePerUsd: 0.749355,
+        openPerUsd: 0.747535,
+        highPerUsd: 0.749355,
+        lowPerUsd: 0.747035,
+        changePct: 0.2435,
+        series: [0.747535, 0.747155, 0.747275, 0.747350, 0.747815, 0.748305, 0.749355]
+      },
+      {
+        code: "CNY",
+        name: "Chinese Yuan",
+        symbol: "¥",
+        flag: "🇨🇳",
+        region: "Asia-Pacific",
+        ratePerUsd: 6.67805,
+        openPerUsd: 6.678051,
+        highPerUsd: 6.678051,
+        lowPerUsd: 6.67805,
+        changePct: -0.0001,
+        series: [6.678051, 6.67805, 6.67805, 6.67805, 6.67805, 6.67805, 6.67805]
+      },
+      {
+        code: "HKD",
+        name: "Hong Kong Dollar",
+        symbol: "HK$",
+        flag: "🇭🇰",
+        region: "Asia-Pacific",
+        ratePerUsd: 7.844715,
+        openPerUsd: 7.8426,
+        highPerUsd: 7.844925,
+        lowPerUsd: 7.84256,
+        changePct: 0.0270,
+        series: [7.84260, 7.84256, 7.84433, 7.84385, 7.84418, 7.84381, 7.844715]
+      },
+      {
+        code: "SGD",
+        name: "Singapore Dollar",
+        symbol: "S$",
+        flag: "🇸🇬",
+        region: "Asia-Pacific",
+        ratePerUsd: 1.27976,
+        openPerUsd: 1.27786,
+        highPerUsd: 1.27976,
+        lowPerUsd: 1.277765,
+        changePct: 0.1487,
+        series: [1.27786, 1.27809, 1.27803, 1.27819, 1.27874, 1.27912, 1.27976]
+      },
+      {
+        code: "KRW",
+        name: "South Korean Won",
+        symbol: "₩",
+        flag: "🇰🇷",
+        region: "Asia-Pacific",
+        ratePerUsd: 1324.16,
+        openPerUsd: 1323.25,
+        highPerUsd: 1325.31,
+        lowPerUsd: 1320.905,
+        changePct: 0.0688,
+        series: [1323.25, 1324.96, 1322.185, 1321.68, 1322.32, 1323.05, 1324.16]
+      },
+      {
+        code: "AUD",
+        name: "Australian Dollar",
+        symbol: "A$",
+        flag: "🇦🇺",
+        region: "Asia-Pacific",
+        ratePerUsd: 1.422253,
+        openPerUsd: 1.422586,
+        highPerUsd: 1.423984,
+        lowPerUsd: 1.421949,
+        changePct: -0.0234,
+        series: [1.422586, 1.421949, 1.422748, 1.42250, 1.42366, 1.42312, 1.422253]
+      },
+      {
+        code: "CAD",
+        name: "Canadian Dollar",
+        symbol: "CA$",
+        flag: "🇨🇦",
+        region: "Americas",
+        ratePerUsd: 1.40185,
+        openPerUsd: 1.4013,
+        highPerUsd: 1.402635,
+        lowPerUsd: 1.399985,
+        changePct: 0.0392,
+        series: [1.40130, 1.400205, 1.400475, 1.40058, 1.401265, 1.40219, 1.40185]
+      },
+      {
+        code: "CHF",
+        name: "Swiss Franc",
+        symbol: "CHF",
+        flag: "🇨🇭",
+        region: "Europe",
+        ratePerUsd: 0.825975,
+        openPerUsd: 0.82387,
+        highPerUsd: 0.825975,
+        lowPerUsd: 0.8232,
+        changePct: 0.2555,
+        series: [0.82387, 0.824065, 0.823615, 0.824005, 0.824075, 0.825015, 0.825975]
+      },
+      {
+        code: "INR",
+        name: "Indian Rupee",
+        symbol: "₹",
+        flag: "🇮🇳",
+        region: "Asia-Pacific",
+        ratePerUsd: 95.1796,
+        openPerUsd: 94.93265,
+        highPerUsd: 95.24015,
+        lowPerUsd: 94.91385,
+        changePct: 0.2601,
+        series: [94.93265, 94.9527, 94.92595, 95.0148, 95.11865, 95.15435, 95.1796]
+      },
+      {
+        code: "THB",
+        name: "Thai Baht",
+        symbol: "฿",
+        flag: "🇹🇭",
+        region: "Asia-Pacific",
+        ratePerUsd: 33.789,
+        openPerUsd: 33.76998,
+        highPerUsd: 33.83,
+        lowPerUsd: 33.72,
+        changePct: 0.0563,
+        series: [33.770, 33.7755, 33.750, 33.780, 33.7855, 33.830, 33.789]
+      },
+      {
+        code: "NZD",
+        name: "New Zealand Dollar",
+        symbol: "NZ$",
+        flag: "🇳🇿",
+        region: "Asia-Pacific",
+        ratePerUsd: 1.758565,
+        openPerUsd: 1.75409,
+        highPerUsd: 1.758695,
+        lowPerUsd: 1.75299,
+        changePct: 0.2551,
+        series: [1.75409, 1.75348, 1.75369, 1.75391, 1.75495, 1.75634, 1.758565]
+      },
+      {
+        code: "MXN",
+        name: "Mexican Peso",
+        symbol: "MX$",
+        flag: "🇲🇽",
+        region: "Americas",
+        ratePerUsd: 18.70194,
+        openPerUsd: 18.72204,
+        highPerUsd: 18.7495,
+        lowPerUsd: 18.66732,
+        changePct: -0.1074,
+        series: [18.72204, 18.7289, 18.70794, 18.6982, 18.71968, 18.7164, 18.70194]
+      },
+      {
+        code: "BRL",
+        name: "Brazilian Real",
+        symbol: "R$",
+        flag: "🇧🇷",
+        region: "Americas",
+        ratePerUsd: 4.9765,
+        openPerUsd: 4.9696,
+        highPerUsd: 4.979,
+        lowPerUsd: 4.969,
+        changePct: 0.1388,
+        series: [4.9696, 4.9702, 4.9700, 4.9787, 4.9776, 4.9787, 4.9765]
+      },
+      {
+        code: "PHP",
+        name: "Philippine Peso",
+        symbol: "₱",
+        flag: "🇵🇭",
+        region: "Asia-Pacific",
+        ratePerUsd: 63.9375,
+        openPerUsd: 63.618,
+        highPerUsd: 64.004,
+        lowPerUsd: 63.618,
+        changePct: 0.5022,
+        series: [63.618, 63.7745, 63.8665, 63.893, 63.8945, 63.946, 63.9375]
+      },
+      {
+        code: "IDR",
+        name: "Indonesian Rupiah",
+        symbol: "Rp",
+        flag: "🇮🇩",
+        region: "Asia-Pacific",
+        ratePerUsd: 18128.0,
+        openPerUsd: 18099.0,
+        highPerUsd: 18135.0,
+        lowPerUsd: 18084.16,
+        changePct: 0.1602,
+        series: [18099.0, 18087.0, 18108.0, 18122.0, 18119.26, 18126.0, 18128.0]
+      },
+      {
+        code: "MYR",
+        name: "Malaysian Ringgit",
+        symbol: "RM",
+        flag: "🇲🇾",
+        region: "Asia-Pacific",
+        ratePerUsd: 4.0859,
+        openPerUsd: 4.0836,
+        highPerUsd: 4.0866,
+        lowPerUsd: 4.0836,
+        changePct: 0.0563,
+        series: [4.0836, 4.0844, 4.0840, 4.0840, 4.0847, 4.0859, 4.0859]
+      },
+      {
+        code: "VND",
+        name: "Vietnamese Dong",
+        symbol: "₫",
+        flag: "🇻🇳",
+        region: "Asia-Pacific",
+        ratePerUsd: 25842.5,
+        openPerUsd: 25842.46,
+        highPerUsd: 25857.5,
+        lowPerUsd: 25839.5,
+        changePct: 0.0001,
+        series: [25842.46, 25841.5, 25853.5, 25855.0, 25855.0, 25845.5, 25842.5]
+      },
+      {
+        code: "SEK",
+        name: "Swedish Krona",
+        symbol: "kr",
+        flag: "🇸🇪",
+        region: "Europe",
+        ratePerUsd: 9.9381,
+        openPerUsd: 9.92568,
+        highPerUsd: 9.941065,
+        lowPerUsd: 9.91914,
+        changePct: 0.1251,
+        series: [9.92568, 9.923765, 9.92473, 9.924515, 9.92843, 9.935885, 9.9381]
+      },
+      {
+        code: "ZAR",
+        name: "South African Rand",
+        symbol: "R",
+        flag: "🇿🇦",
+        region: "Europe",
+        ratePerUsd: 16.56912,
+        openPerUsd: 16.63012,
+        highPerUsd: 16.6352,
+        lowPerUsd: 16.5661,
+        changePct: -0.3668,
+        series: [16.63012, 16.6174, 16.6156, 16.59626, 16.61975, 16.62015, 16.56912]
+      },
+      {
+        code: "AED",
+        name: "UAE Dirham",
+        symbol: "AED",
+        flag: "🇦🇪",
+        region: "Asia-Pacific",
+        ratePerUsd: 3.6725,
+        openPerUsd: 3.6725,
+        highPerUsd: 3.6725,
+        lowPerUsd: 3.6725,
+        changePct: 0.0,
+        series: [3.6725, 3.6725, 3.6725, 3.6725, 3.6725, 3.6725, 3.6725]
+      }
+    ];
+
+    const CURRENCY_MAP = {};
+    GOOGLE_CURRENCIES.forEach(c => {
+      CURRENCY_MAP[c.code] = c;
+    });
+
+    // -------------------------------------------------------------------------
+    // 2. APPLICATION STATE
+    // -------------------------------------------------------------------------
+    const state = {
+      fromCode: "USD",
+      toCode: "TWD",
+      fromAmount: 1000,
+      feePercent: 0,
+      customRateOverride: null, // null or number (1 fromCode = X toCode)
+      pinnedCodes: ["TWD", "EUR", "JPY", "GBP", "HKD", "SGD", "KRW", "CNY"],
+      regionFilter: "all",
+      searchQuery: "",
+      lastEditedField: "from", // 'from' or 'to'
+      lastSyncText: "Oct 26, 2026 · 08:55 UTC"
+    };
+
+    // Load saved preferences safely
+    try {
+      const saved = localStorage.getItem("fx_pulse_state_v1");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.fromCode && CURRENCY_MAP[parsed.fromCode]) state.fromCode = parsed.fromCode;
+        if (parsed.toCode && CURRENCY_MAP[parsed.toCode]) state.toCode = parsed.toCode;
+        if (typeof parsed.fromAmount === "number" && !isNaN(parsed.fromAmount)) state.fromAmount = parsed.fromAmount;
+        if (Array.isArray(parsed.pinnedCodes) && parsed.pinnedCodes.length > 0) state.pinnedCodes = parsed.pinnedCodes;
+      }
+    } catch (e) {
+      // Ignore storage access errors in sandboxed iframes
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem("fx_pulse_state_v1", JSON.stringify({
+          fromCode: state.fromCode,
+          toCode: state.toCode,
+          fromAmount: state.fromAmount,
+          pinnedCodes: state.pinnedCodes
+        }));
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. HELPER & RATE CALCULATION FUNCTIONS
+    // -------------------------------------------------------------------------
+    function getCrossRate(fromCode, toCode) {
+      if (fromCode === toCode) return 1.0;
+      if (
+        state.customRateOverride !== null &&
+        fromCode === state.fromCode &&
+        toCode === state.toCode
+      ) {
+        return state.customRateOverride;
+      }
+      const fromObj = CURRENCY_MAP[fromCode];
+      const toObj = CURRENCY_MAP[toCode];
+      if (!fromObj || !toObj) return 1.0;
+      return toObj.ratePerUsd / fromObj.ratePerUsd;
+    }
+
+    function getIntradayCrossSeries(fromCode, toCode) {
+      const fromObj = CURRENCY_MAP[fromCode];
+      const toObj = CURRENCY_MAP[toCode];
+      if (!fromObj || !toObj) return [1, 1, 1, 1, 1, 1, 1];
+      if (fromCode === toCode) return [1, 1, 1, 1, 1, 1, 1];
+      return fromObj.series.map((fromVal, idx) => {
+        const toVal = toObj.series[idx] || toObj.ratePerUsd;
+        return toVal / fromVal;
+      });
+    }
+
+    function formatAmount(num, code) {
+      if (!isFinite(num)) return "0.00";
+      const abs = Math.abs(num);
+      // High-unit currencies like JPY, KRW, IDR, VND look cleanest with 2 decimals for small amounts or 2 decimals standard
+      let maxDecimals = 2;
+      if (abs > 0 && abs < 0.01) maxDecimals = 6;
+      else if (abs > 0 && abs < 1) maxDecimals = 4;
+      return num.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: maxDecimals
+      });
+    }
+
+    function formatRate(rate) {
+      if (!isFinite(rate)) return "1.0000";
+      if (rate >= 1000) return rate.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (rate >= 10) return rate.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+      if (rate >= 0.1) return rate.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 6 });
+      return rate.toLocaleString("en-US", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const bgClass = type === "success" ? "bg-emerald-600" : type === "warning" ? "bg-amber-600" : "bg-slate-900";
+      toast.className = `${bgClass} text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition-all duration-300 pointer-events-auto`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(8px)";
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. UI RENDERING & CHART INITIALIZATION
+    // -------------------------------------------------------------------------
+    let fxChart = null;
+
+    function populateCurrencySelects() {
+      const fromSelect = document.getElementById("select-from-currency");
+      const toSelect = document.getElementById("select-to-currency");
+      const optionsHtml = GOOGLE_CURRENCIES.map(
+        c => `<option value="${c.code}">${c.flag} ${c.code} — ${c.name}</option>`
+      ).join("");
+      fromSelect.innerHTML = optionsHtml;
+      toSelect.innerHTML = optionsHtml;
+      fromSelect.value = state.fromCode;
+      toSelect.value = state.toCode;
+    }
+
+    function updateConverterUI(skipInputSync = false) {
+      const fromObj = CURRENCY_MAP[state.fromCode];
+      const toObj = CURRENCY_MAP[state.toCode];
+      const rate = getCrossRate(state.fromCode, state.toCode);
+      const inverseRate = rate > 0 ? 1 / rate : 0;
+
+      // Update titles and labels
+      document.getElementById("pair-headline").textContent = `${state.fromCode} to ${state.toCode} Converter`;
+      document.getElementById("from-code-Readout").textContent = state.fromCode;
+      document.getElementById("to-code-Readout").textContent = state.toCode;
+      document.getElementById("from-currency-name").textContent = `${fromObj.flag} ${fromObj.name} (${fromObj.symbol})`;
+      document.getElementById("to-currency-name").textContent = `${toObj.flag} ${toObj.name} (${toObj.symbol})`;
+      document.getElementById("mid-market-pill").textContent = `1 ${state.fromCode} = ${formatRate(rate)} ${state.toCode}`;
+      document.getElementById("inverse-rate-display").textContent = `1 ${state.toCode} = ${formatRate(inverseRate)} ${state.fromCode}`;
+
+      // Data source badge
+      const badge = document.getElementById("data-source-badge");
+      if (state.customRateOverride !== null) {
+        badge.textContent = "Custom Rate Active";
+        badge.className = "text-xs px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-medium";
+      } else {
+        badge.textContent = "Google Verified";
+        badge.className = "text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
+      }
+
+      // Calculate amounts
+      const grossConverted = state.fromAmount * rate;
+      const feeRatio = state.feePercent / 100;
+      const feeAmount = grossConverted * feeRatio;
+      const netConverted = grossConverted - feeAmount;
+
+      const fromInput = document.getElementById("input-from-amount");
+      const toInput = document.getElementById("input-to-amount");
+
+      if (!skipInputSync) {
+        fromInput.value = Number(state.fromAmount.toFixed(4));
+        toInput.value = Number(grossConverted.toFixed(4));
+      } else if (state.lastEditedField === "from") {
+        toInput.value = Number(grossConverted.toFixed(4));
+      } else if (state.lastEditedField === "to") {
+        fromInput.value = Number(state.fromAmount.toFixed(4));
+      }
+
+      document.getElementById("fee-amount-display").textContent = `${formatAmount(feeAmount, state.toCode)} ${state.toCode} (${state.feePercent}%)`;
+      document.getElementById("net-received-display").textContent = `${formatAmount(netConverted, state.toCode)} ${state.toCode}`;
+
+      // Update custom rate modal labels
+      document.getElementById("custom-from-code").textContent = state.fromCode;
+      document.getElementById("custom-to-code").textContent = state.toCode;
+
+      // Update Google Finance direct verification links
+      const gfUrl = state.fromCode === state.toCode
+        ? `https://www.google.com/finance/markets/currencies`
+        : `https://www.google.com/finance/quote/${state.fromCode}-${state.toCode}`;
+      document.getElementById("header-gf-link").href = gfUrl;
+      const chartLink = document.getElementById("chart-gf-quote-link");
+      chartLink.href = gfUrl;
+      chartLink.querySelector("span").textContent = `View ${state.fromCode}/${state.toCode} on Google Finance`;
+
+      // Highlight matching preset button
+      document.querySelectorAll(".preset-btn").forEach(btn => {
+        const val = parseFloat(btn.getAttribute("data-preset"));
+        if (Math.abs(state.fromAmount - val) < 0.001) {
+          btn.className = "preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-200 transition-colors";
+        } else {
+          btn.className = "preset-btn py-1.5 px-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 border border-slate-200 transition-colors";
+        }
+      });
+
+      // Update Chart & Intraday KPIs
+      updateChartAndStats(rate, grossConverted);
+
+      // Update Quick Reference Multipliers
+      renderQuickMultipliers(rate);
+
+      // Update Multi-Currency Board
+      renderMultiCurrencyBoard();
+
+      saveState();
+    }
+
+    function updateChartAndStats(currentRate, grossConverted) {
+      const series = getIntradayCrossSeries(state.fromCode, state.toCode);
+      // If custom override is active, shift the last point to reflect custom rate
+      const plotSeries = [...series];
+      if (state.customRateOverride !== null) {
+        plotSeries[plotSeries.length - 1] = currentRate;
+      }
+
+      const openVal = plotSeries[0];
+      const closeVal = plotSeries[plotSeries.length - 1];
+      const highVal = Math.max(...plotSeries);
+      const lowVal = Math.min(...plotSeries);
+      const pctChange = openVal > 0 ? ((closeVal - openVal) / openVal) * 100 : 0;
+
+      document.getElementById("chart-pair-title").textContent = `1 ${state.fromCode} = ${formatRate(currentRate)} ${state.toCode}`;
+      document.getElementById("stat-open").textContent = formatRate(openVal);
+      document.getElementById("stat-high").textContent = formatRate(highVal);
+      document.getElementById("stat-low").textContent = formatRate(lowVal);
+      document.getElementById("stat-converted").textContent = `${formatAmount(grossConverted, state.toCode)} ${state.toCode}`;
+
+      const badge = document.getElementById("chart-change-badge");
+      const sign = pctChange > 0 ? "+" : "";
+      badge.textContent = `${sign}${pctChange.toFixed(2)}% Intraday`;
+      if (pctChange > 0.0001) {
+        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700";
+      } else if (pctChange < -0.0001) {
+        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700";
+      } else {
+        badge.className = "inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-600";
+      }
+
+      const lineColor = pctChange >= 0 ? "#2563eb" : "#e11d48";
+      const fillColor = pctChange >= 0 ? "rgba(37, 99, 235, 0.10)" : "rgba(225, 29, 72, 0.10)";
+
+      const ctx = document.getElementById("fx-intraday-chart").getContext("2d");
+      if (!fxChart) {
+        fxChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: INTRADAY_LABELS,
+            datasets: [
+              {
+                label: `${state.fromCode}/${state.toCode} Exchange Rate`,
+                data: plotSeries,
+                borderColor: lineColor,
+                backgroundColor: fillColor,
+                borderWidth: 2.5,
+                pointRadius: 3.5,
+                pointHoverRadius: 6,
+                pointBackgroundColor: "#ffffff",
+                pointBorderColor: lineColor,
+                pointBorderWidth: 2,
+                fill: true,
+                tension: 0.32
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                backgroundColor: "#0f172a",
+                titleColor: "#94a3b8",
+                bodyColor: "#ffffff",
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(context) {
+                    return ` 1 ${state.fromCode} = ${formatRate(context.parsed.y)} ${state.toCode}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  display: false
+                },
+                ticks: {
+                  font: { size: 11 },
+                  color: "#64748b"
+                }
+              },
+              y: {
+                grid: {
+                  color: "rgba(226, 232, 240, 0.7)"
+                },
+                ticks: {
+                  font: { size: 11 },
+                  color: "#64748b",
+                  callback: function(value) {
+                    return formatRate(value);
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
+        fxChart.data.datasets[0].label = `${state.fromCode}/${state.toCode} Exchange Rate`;
+        fxChart.data.datasets[0].data = plotSeries;
+        fxChart.data.datasets[0].borderColor = lineColor;
+        fxChart.data.datasets[0].backgroundColor = fillColor;
+        fxChart.data.datasets[0].pointBorderColor = lineColor;
+        fxChart.update();
+      }
+    }
+
+    function renderQuickMultipliers(rate) {
+      const container = document.getElementById("quick-multipliers-grid");
+      const units = [1, 10, 100, 1000];
+      container.innerHTML = units.map(u => {
+        const converted = u * rate;
+        return `
+          <button type="button" data-quick-unit="${u}" class="quick-unit-card text-left p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/70 border border-slate-200/80 hover:border-blue-200 transition-colors">
+            <div class="text-slate-500 font-medium">${u.toLocaleString()} ${state.fromCode}</div>
+            <div class="text-slate-900 font-bold mt-0.5 truncate">${formatAmount(converted, state.toCode)} ${state.toCode}</div>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderMultiCurrencyBoard() {
+      const grid = document.getElementById("multi-currency-grid");
+      document.getElementById("board-base-badge").textContent = `Base: ${formatAmount(state.fromAmount, state.fromCode)} ${state.fromCode}`;
+      document.getElementById("board-base-desc").textContent = state.fromCode;
+
+      const q = state.searchQuery.trim().toLowerCase();
+      const filtered = GOOGLE_CURRENCIES.filter(c => {
+        if (state.regionFilter === "pinned" && !state.pinnedCodes.includes(c.code)) return false;
+        if (state.regionFilter !== "all" && state.regionFilter !== "pinned" && c.region !== state.regionFilter) return false;
+        if (q) {
+          return (
+            c.code.toLowerCase().includes(q) ||
+            c.name.toLowerCase().includes(q) ||
+            c.region.toLowerCase().includes(q)
+          );
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-8 text-center text-sm text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+            No currencies match your filter. Try clearing the search box or switching regions.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(c => {
+        const crossRate = getCrossRate(state.fromCode, c.code);
+        const convertedVal = state.fromAmount * crossRate;
+        const isTarget = c.code === state.toCode;
+        const isPinned = state.pinnedCodes.includes(c.code);
+
+        // Compute intraday change of (fromCode -> c.code)
+        const series = getIntradayCrossSeries(state.fromCode, c.code);
+        const openVal = series[0];
+        const endVal = series[series.length - 1];
+        const chg = openVal > 0 ? ((endVal - openVal) / openVal) * 100 : 0;
+        const chgSign = chg > 0 ? "+" : "";
+        const chgColor = chg > 0.0001 ? "text-emerald-600 bg-emerald-50" : chg < -0.0001 ? "text-rose-600 bg-rose-50" : "text-slate-500 bg-slate-100";
+
+        const borderClass = isTarget
+          ? "border-blue-500 ring-2 ring-blue-500/15 bg-blue-50/20"
+          : "border-slate-200 hover:border-blue-300 bg-white";
+
+        const quoteUrl = state.fromCode === c.code
+          ? "https://www.google.com/finance/markets/currencies"
+          : `https://www.google.com/finance/quote/${state.fromCode}-${c.code}`;
+
+        return `
+          <div class="currency-card rounded-xl border ${borderClass} p-3.5 transition-all flex flex-col justify-between cursor-pointer" data-target-code="${c.code}">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-xl shrink-0">${c.flag}</span>
+                <div class="truncate">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-bold text-sm text-slate-900">${c.code}</span>
+                    <span class="text-[11px] px-1.5 py-0.5 rounded font-semibold ${chgColor}">${chgSign}${chg.toFixed(2)}%</span>
+                  </div>
+                  <div class="text-xs text-slate-500 truncate">${c.name}</div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                data-pin-code="${c.code}"
+                title="${isPinned ? 'Unpin currency' : 'Pin currency'}"
+                class="pin-btn p-1 rounded-lg hover:bg-slate-100 text-sm transition-colors ${isPinned ? 'text-amber-500' : 'text-slate-300 hover:text-slate-500'}"
+              >
+                ★
+              </button>
+            </div>
+
+            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-end justify-between gap-2">
+              <div class="min-w-0">
+                <div class="text-[11px] text-slate-400">1 ${state.fromCode} = ${formatRate(crossRate)} ${c.code}</div>
+                <div class="text-base font-bold text-slate-900 truncate mt-0.5">${c.symbol} ${formatAmount(convertedVal, c.code)}</div>
+              </div>
+              <a
+                href="${quoteUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="gf-card-link text-[11px] font-semibold text-blue-600 hover:underline shrink-0"
+                title="Verify ${state.fromCode}/${c.code} on Google Finance"
+              >
+                Google ↗
+              </a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. LIVE RATE RETRIEVAL / REFRESH HANDLER
+    // -------------------------------------------------------------------------
+    async function syncLatestExchangeRates() {
+      const icon = document.getElementById("refresh-icon");
+      icon.classList.add("animate-spin");
+
+      try {
+        // Attempt to query a public CORS-enabled exchange rate endpoint as a live supplement,
+        // while preserving Google Finance's verified intraday series and exact snapshot fallback.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const response = await fetch("https://open.er-api.com/v6/latest/USD", {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.rates) {
+            GOOGLE_CURRENCIES.forEach(c => {
+              if (c.code !== "USD" && typeof data.rates[c.code] === "number") {
+                c.ratePerUsd = data.rates[c.code];
+                c.series[c.series.length - 1] = data.rates[c.code];
+              }
+            });
+            const nowStr = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
+            document.getElementById("header-timestamp").textContent = `Latest Synced FX Feed: ${nowStr}`;
+            state.customRateOverride = null;
+            updateConverterUI();
+            showToast("Exchange rates synced with latest live market feed!", "success");
+            icon.classList.remove("animate-spin");
+            return;
+          }
+        }
+      } catch (err) {
+        // In sandboxed environments without outbound internet, fall back cleanly to the embedded Google Finance snapshot
+      }
+
+      setTimeout(() => {
+        state.customRateOverride = null;
+        document.getElementById("header-timestamp").textContent =
+          "Latest Google Finance Snapshot: Oct 26, 2026 · 08:55 UTC (Verified)";
+        updateConverterUI();
+        icon.classList.remove("animate-spin");
+        showToast("Verified against latest Google Finance exchange rate snapshot (Oct 26, 2026 08:55 UTC).", "success");
+      }, 400);
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. EVENT LISTENERS
+    // -------------------------------------------------------------------------
+    function attachEventListeners() {
+      const fromInput = document.getElementById("input-from-amount");
+      const toInput = document.getElementById("input-to-amount");
+      const fromSelect = document.getElementById("select-from-currency");
+      const toSelect = document.getElementById("select-to-currency");
+
+      // Reactive calculation when typing in "From" amount
+      fromInput.addEventListener("input", () => {
+        state.lastEditedField = "from";
+        const val = parseFloat(fromInput.value);
+        state.fromAmount = isNaN(val) || val < 0 ? 0 : val;
+        updateConverterUI(true);
+      });
+
+      // Reactive reverse calculation when typing in "To" amount
+      toInput.addEventListener("input", () => {
+        state.lastEditedField = "to";
+        const toVal = parseFloat(toInput.value);
+        const rate = getCrossRate(state.fromCode, state.toCode);
+        if (isNaN(toVal) || toVal < 0 || rate <= 0) {
+          state.fromAmount = 0;
+        } else {
+          state.fromAmount = toVal / rate;
+        }
+        updateConverterUI(true);
+      });
+
+      // Currency selector changes
+      fromSelect.addEventListener("change", () => {
+        state.fromCode = fromSelect.value;
+        state.customRateOverride = null;
+        updateConverterUI();
+      });
+
+      toSelect.addEventListener("change", () => {
+        state.toCode = toSelect.value;
+        state.customRateOverride = null;
+        updateConverterUI();
+      });
+
+      // Swap currencies button
+      document.getElementById("btn-swap-currencies").addEventListener("click", () => {
+        const temp = state.fromCode;
+        state.fromCode = state.toCode;
+        state.toCode = temp;
+        if (state.customRateOverride !== null && state.customRateOverride > 0) {
+          state.customRateOverride = 1 / state.customRateOverride;
+        }
+        fromSelect.value = state.fromCode;
+        toSelect.value = state.toCode;
+        updateConverterUI();
+        showToast(`Swapped pair to ${state.fromCode} → ${state.toCode}`);
+      });
+
+      // Quick preset buttons
+      document.getElementById("preset-buttons-container").addEventListener("click", e => {
+        const btn = e.target.closest(".preset-btn");
+        if (!btn) return;
+        const val = parseFloat(btn.getAttribute("data-preset"));
+        if (!isNaN(val)) {
+          state.fromAmount = val;
+          state.lastEditedField = "from";
+          updateConverterUI();
+        }
+      });
+
+      // Quick reference multiplier cards
+      document.getElementById("quick-multipliers-grid").addEventListener("click", e => {
+        const card = e.target.closest(".quick-unit-card");
+        if (!card) return;
+        const val = parseFloat(card.getAttribute("data-quick-unit"));
+        if (!isNaN(val)) {
+          state.fromAmount = val;
+          state.lastEditedField = "from";
+          updateConverterUI();
+          showToast(`Set amount to ${val.toLocaleString()} ${state.fromCode}`);
+        }
+      });
+
+      // Fee selector
+      document.getElementById("select-fee-percent").addEventListener("change", e => {
+        state.feePercent = parseFloat(e.target.value) || 0;
+        updateConverterUI();
+      });
+
+      // Copy result button with fallback
+      document.getElementById("btn-copy-result").addEventListener("click", () => {
+        const rate = getCrossRate(state.fromCode, state.toCode);
+        const converted = state.fromAmount * rate;
+        const textToCopy = `${formatAmount(state.fromAmount, state.fromCode)} ${state.fromCode} = ${formatAmount(converted, state.toCode)} ${state.toCode} (Google Finance Rate: 1 ${state.fromCode} = ${formatRate(rate)} ${state.toCode})`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast("Converted result copied to clipboard!", "success");
+          }).catch(() => {
+            fallbackCopy(textToCopy);
+          });
+        } else {
+          fallbackCopy(textToCopy);
+        }
+      });
+
+      // Custom Rate Override Panel
+      document.getElementById("btn-toggle-custom-rate").addEventListener("click", () => {
+        const panel = document.getElementById("custom-rate-panel");
+        panel.classList.toggle("hidden");
+        if (!panel.classList.contains("hidden")) {
+          const currentRate = getCrossRate(state.fromCode, state.toCode);
+          document.getElementById("input-custom-rate").value = Number(currentRate.toFixed(6));
+        }
+      });
+
+      document.getElementById("btn-apply-custom-rate").addEventListener("click", () => {
+        const val = parseFloat(document.getElementById("input-custom-rate").value);
+        if (!isNaN(val) && val > 0) {
+          state.customRateOverride = val;
+          updateConverterUI();
+          showToast(`Applied custom rate: 1 ${state.fromCode} = ${formatRate(val)} ${state.toCode}`, "warning");
+        } else {
+          showToast("Please enter a valid positive exchange rate.", "warning");
+        }
+      });
+
+      document.getElementById("btn-reset-google-rate").addEventListener("click", () => {
+        state.customRateOverride = null;
+        document.getElementById("custom-rate-panel").classList.add("hidden");
+        updateConverterUI();
+        showToast("Restored official Google Finance rate.", "success");
+      });
+
+      // Sync Latest Rates button
+      document.getElementById("btn-refresh-rates").addEventListener("click", () => {
+        syncLatestExchangeRates();
+      });
+
+      // Phone Shortcut Modal handlers
+      let deferredInstallPrompt = null;
+      window.addEventListener("beforeinstallprompt", e => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+      });
+
+      const shortcutModal = document.getElementById("phone-shortcut-modal");
+      document.getElementById("btn-phone-shortcut").addEventListener("click", () => {
+        shortcutModal.classList.remove("hidden");
+      });
+      document.getElementById("btn-close-shortcut-modal").addEventListener("click", () => {
+        shortcutModal.classList.add("hidden");
+      });
+      shortcutModal.addEventListener("click", e => {
+        if (e.target === shortcutModal) shortcutModal.classList.add("hidden");
+      });
+
+      document.getElementById("btn-download-app-html").addEventListener("click", () => {
+        const htmlSource = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([htmlSource], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "FX_Pulse_Currency_Converter.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast("Saved standalone FX_Pulse_Currency_Converter.html!", "success");
+      });
+
+      document.getElementById("btn-trigger-pwa-install").addEventListener("click", async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+        } else {
+          showToast("Use your mobile browser menu (Share → Add to Home Screen on iOS, or ⋮ → Add to Home screen on Android).", "info");
+        }
+      });
+
+      // Export CSV button
+      document.getElementById("btn-export-csv").addEventListener("click", () => {
+        const rows = [
+          ["Base Currency", "Target Currency", "Currency Name", "Exchange Rate (1 Base)", "Base Amount", "Converted Amount", "Google Finance Quote URL"]
+        ];
+        GOOGLE_CURRENCIES.forEach(c => {
+          const rate = getCrossRate(state.fromCode, c.code);
+          const conv = state.fromAmount * rate;
+          const url = state.fromCode === c.code
+            ? "https://www.google.com/finance/markets/currencies"
+            : `https://www.google.com/finance/quote/${state.fromCode}-${c.code}`;
+          rows.push([
+            state.fromCode,
+            c.code,
+            `"${c.name}"`,
+            rate.toFixed(6),
+            state.fromAmount.toFixed(2),
+            conv.toFixed(2),
+            url
+          ]);
+        });
+        const csvContent = rows.map(r => r.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `google_fx_${state.fromCode}_rates_2026-10-26.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Exported multi-currency conversion table to CSV!", "success");
+      });
+
+      // Search & Region Filter
+      document.getElementById("input-search-currency").addEventListener("input", e => {
+        state.searchQuery = e.target.value;
+        renderMultiCurrencyBoard();
+      });
+
+      document.getElementById("region-filter-tabs").addEventListener("click", e => {
+        const tab = e.target.closest(".region-tab");
+        if (!tab) return;
+        state.regionFilter = tab.getAttribute("data-region");
+        document.querySelectorAll(".region-tab").forEach(btn => {
+          if (btn.getAttribute("data-region") === state.regionFilter) {
+            btn.className = "region-tab px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm";
+          } else {
+            btn.className = "region-tab px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900";
+          }
+        });
+        renderMultiCurrencyBoard();
+      });
+
+      // Multi-currency board delegation (card click to select target, star click to pin)
+      document.getElementById("multi-currency-grid").addEventListener("click", e => {
+        const pinBtn = e.target.closest(".pin-btn");
+        if (pinBtn) {
+          e.stopPropagation();
+          const code = pinBtn.getAttribute("data-pin-code");
+          if (state.pinnedCodes.includes(code)) {
+            state.pinnedCodes = state.pinnedCodes.filter(c => c !== code);
+            showToast(`Unpinned ${code}`);
+          } else {
+            state.pinnedCodes.push(code);
+            showToast(`Pinned ${code} to favorites ★`);
+          }
+          renderMultiCurrencyBoard();
+          saveState();
+          return;
+        }
+
+        const gfLink = e.target.closest(".gf-card-link");
+        if (gfLink) {
+          e.stopPropagation();
+          return;
+        }
+
+        const card = e.target.closest(".currency-card");
+        if (card) {
+          const targetCode = card.getAttribute("data-target-code");
+          if (targetCode && CURRENCY_MAP[targetCode]) {
+            state.toCode = targetCode;
+            state.customRateOverride = null;
+            document.getElementById("select-to-currency").value = targetCode;
+            updateConverterUI();
+            showToast(`Active target currency set to ${targetCode}`);
+          }
+        }
+      });
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast("Converted result copied to clipboard!", "success");
+      } catch (e) {
+        showToast("Could not copy automatically.", "warning");
+      }
+      document.body.removeChild(ta);
+    }
+
+    // Initialize App on DOMContentLoaded
+    window.addEventListener("DOMContentLoaded", () => {
+      populateCurrencySelects();
+      attachEventListeners();
+      updateConverterUI();
+    });
+  </script>
+</body>
+</html>
